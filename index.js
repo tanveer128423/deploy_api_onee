@@ -1,15 +1,37 @@
+require('dotenv').config();
 const express = require('express');
-const { resolve } = require('path');
-
 const app = express();
-const port = 3010;
+const port = process.env.PORT || 3000;
 
-app.use(express.static('static'));
+// Access environment variables
+const apiKey = process.env.API_KEY;
+const dbPassword = process.env.DB_PASSWORD;
 
+// Ensure required environment variables are loaded
+if (!apiKey || !dbPassword) {
+  console.error("Missing required environment variables! Please check your .env file.");
+  process.exit(1); // Exit if variables are not found
+}
+
+// Simple API endpoint
 app.get('/', (req, res) => {
-  res.sendFile(resolve(__dirname, 'pages/index.html'));
+  res.send('Welcome to the API!');
+});
+
+app.get('/api-key', (req, res) => {
+  res.json({ apiKey });
+});
+
+app.get('/db-password', (req, res) => {
+  res.json({ dbPassword });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log( `Server is running on port ${port}`);
 });
